@@ -11,7 +11,7 @@ cache:
     - node_modules
 
 before_install:
-  - mysql -e 'CREATE DATABASE turing-test;'
+  - mysql -e 'CREATE DATABASE turing_test;'
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 >
