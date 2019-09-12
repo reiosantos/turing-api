@@ -7,7 +7,12 @@ const defaultConfig = {
 	dialect: env.DATABASE_DIALECT || 'mysql',
 	logging: false,
 	use_env_variable: 'DATABASE_URL',
-	operatorsAliases: false
+	operatorsAliases: false,
+	define: {
+		//prevent sequelize from pluralizing table names
+		freezeTableName: true,
+		timestamps: false,
+	}
 };
 
 module.exports = {
