@@ -2,5 +2,6 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="PROJECT" libraries="{@types/babel-core, @types/chai, @types/eslint, @types/eslint-plugin-prettier, @types/express, @types/mocha, @types/sequelize, @types/sequelize-fixtures, @types/sinon, @types/sinon-chai, @types/sinon-express-mock, @types/stripe, @types/stripe-v3, @types/stripejs, @types/validator}" />
+    <includedPredefinedLibrary name="Node.js Core" />
   </component>
 </project>

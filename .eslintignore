@@ -12,3 +12,5 @@
 /test/fixtures/**
 /test/performance/**
 /tmp/**
+*.sql
+/node_modules/

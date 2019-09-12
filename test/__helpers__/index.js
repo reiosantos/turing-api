@@ -1,6 +1,6 @@
 import chai from 'chai';
-import server from '../../app';
-import ModelFactory from '../../app/models/models.factory';
+import server from '../../src';
+import ModelFactory from '../../src/models/models.factory';
 
 const UserModel = ModelFactory.getModel('customer');
 
@@ -12,7 +12,7 @@ const login = async () => {
 	await deleteAllModals();
 
 	await chai.request(server)
-		.post('/api/customer')
+		.post('/api/customers')
 		.send({
 			password: 'santos',
 			email: 'email@turing.com',
@@ -20,7 +20,7 @@ const login = async () => {
 		});
 
 	const loggedInUser = await chai.request(server)
-		.post('/api/v1/login')
+		.post('/api/customers/login')
 		.send({
 			email: 'email@turing.com',
 			password: 'santos'
