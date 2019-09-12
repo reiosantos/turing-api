@@ -1,7 +1,6 @@
 ### Turing API
 
-[![Build Status](https://travis-ci.com/reiosantos/turing-api.svg?branch=staging)](https://travis-ci.com/reiosantos/turing-api)
-
+[![Build Status](https://travis-ci.com/reiosantos/turing-api.svg?token=E6xehCrKWn7FT5taBNM4&branch=staging)](https://travis-ci.com/reiosantos/turing-api)
 ### Setup
 
 #### Install
