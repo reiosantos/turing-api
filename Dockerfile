@@ -1,26 +1,36 @@
-FROM node:12.4.0
-ARG environment=docker
-ENV APP_PATH=/usr/src/app NPM_CONFIG_LOGLEVEL=warn PORT=3000 HOME=/root NODE_ENV=development
+FROM mysql:5.7
+MAINTAINER Reio Santos <santos@turing.com>
 
-RUN echo "Acquire::By-Hash \"yes\"; ">/etc/apt/apt.conf.d/01byhash
+# SETUP DATABASES
+ENV MYSQL_DATABASE 'turing'
+ENV MYSQL_ROOT_PASSWORD 'root'
+ENV MYSQL_USER 'turing'
+ENV MYSQL_PASSWORD 'turing'
 
-RUN apt-get update -y && \
-apt-get upgrade -y && \
-apt-get install -y nano lsof nmap
+COPY ./database/dump.sql /docker-entrypoint-initdb.d/dump.sql
 
-RUN mkdir -p $HOME/.ssh && \
-echo $VC_MACHINE_KEY | base64 -d >> $HOME/.ssh/key_machine && \
-echo "Host github.com\n               HostName github.com\n   IdentityFile ~/.ssh/key_machine\n               IdentitiesOnly yes\n    UserKnownHostsFile=/dev/null\n    StrictHostKeyChecking no\n" >> $HOME/.ssh/config && \
-ssh-keyscan -H github.com >> $HOME/.ssh/known_hosts && \
-chmod 600 $HOME/.ssh/*
+ENV NODE_ENV=development
+COPY package.json package-lock.json ./
 
-WORKDIR $APP_PATH
-COPY . $APP_PATH
+RUN apt-get update && \
+    apt-get install curl software-properties-common make -y && \
+    curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
-RUN rm -rf node_modules
+RUN apt-get update && \
+    apt-get install -y \
+    nodejs
 
-RUN npm set progress=false && npm i  && npm run build
+RUN apt-get install build-essential -y
 
-EXPOSE 3000
+RUN mkdir /backend
+WORKDIR /backend
 
-CMD ["./docker/run.sh"]
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 80
+COPY turing-entrypoint.sh turing-entrypoint.sh
+
+CMD ["sh", "turing-entrypoint.sh"]

@@ -5,5 +5,6 @@ bower_components
 dist
 node_modules
 fontawesome*
-*-lock.json
 npm_modules
+!.env
+!.env.sample

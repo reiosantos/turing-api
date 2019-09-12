@@ -25,13 +25,12 @@ const envExists = (env) => {
     \n${undefinedVariables.join('\n')}`);
 };
 
-if (process.env.TEST_DATABASE_URL1) {
-	process.env['TEST_DATABASE_URL'] = process.env.TEST_DATABASE_URL1
-}
+const DB_URL = `mysql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
+const TEST_DB_URL = `mysql://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASS}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`;
 
-const DATABASE_URL = process.env.NODE_ENV === 'test'
-	? process.env.TEST_DATABASE_URL
-	: process.env.DATABASE_URL;
+let DATABASE_URL = process.env.NODE_ENV === 'test' ? TEST_DB_URL : process.env.DATABASE_URL || DB_URL;
+
+DATABASE_URL = process.env.NODE_ENV === 'travis-test' ? process.env.TEST_DATABASE_URL : DATABASE_URL;
 
 const envVars = {
 	PORT: process.env.PORT || 5000,

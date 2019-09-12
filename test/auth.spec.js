@@ -1,31 +1,36 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import server from '../app';
-import { deleteAllModals } from './__helpers__';
+import sinon from 'sinon';
+import server from '../src';
+import { clearMock, mockModel, mockModelFunction } from './__mocks__/mock-modals';
+import { customerModalMocks, customerObject } from './__mocks__/mock-objects';
 
 chai.should();
 
 chai.use(chaiHttp);
 
 describe('Authentication', () => {
-	beforeEach(async () => {
-		await deleteAllModals();
+	beforeEach( () => {
+		mockModel('customer', customerModalMocks);
 	});
-
-	afterEach(async () => {
-		await deleteAllModals();
+	
+	afterEach(() => {
+		clearMock();
 	});
 
 	describe('Create Customer', () => {
 		it('should create new customer account', (done) => {
+			mockModelFunction('customer', 'findOne', null);
+			
 			chai.request(server)
-				.post('/api/customer')
+				.post('/api/customers')
 				.send({
 					password: 'santos',
-					email: 'email@turing.com',
+					email: 'email2@turing.com',
 					name: 'Moses'
 				})
 				.end((err, res) => {
+					console.log(res.body);
 					res.should.have.status(201);
 					res.body.should.be.a('object');
 					res.body.should.have.property('customer');
@@ -38,7 +43,7 @@ describe('Authentication', () => {
 	describe('Login', () => {
 		it('No credentials provided', (done) => {
 			chai.request(server)
-				.post('/api/customer/login')
+				.post('/api/customers/login')
 				.end((err, res) => {
 					res.should.have.status(400);
 					res.body.should.be.a('object');
@@ -50,7 +55,7 @@ describe('Authentication', () => {
 
 		it('Password is required', (done) => {
 			chai.request(server)
-				.post('/api/customer/login')
+				.post('/api/customers/login')
 				.send({ email: 'email@turing.com' })
 				.end((err, res) => {
 					res.should.have.status(400);
@@ -62,14 +67,18 @@ describe('Authentication', () => {
 		});
 
 		it('Invalid credentials', (done) => {
+			mockModelFunction('customer', 'findOne', {
+				dataValues: customerObject,
+				validatePassword: sinon.fake.returns(Promise.resolve(false)),
+				getSafeDataValues: sinon.fake.returns(customerObject)
+			});
 			chai.request(server)
-				.post('/api/customer/login')
+				.post('/api/customers/login')
 				.send({
 					email: 'some@wrong.email',
 					password: 'santos'
 				})
 				.end((err, res) => {
-					console.log(res.body);
 					res.should.have.status(401);
 					res.body.should.be.a('object');
 					res.body.should.have.property('code');
@@ -80,27 +89,14 @@ describe('Authentication', () => {
 
 		it('Successful login credentials', async () => {
 			const user = await chai.request(server)
-				.post('/api/customer')
-				.send({
-					password: 'santos',
-					email: 'email@turing.com',
-					name: "santos1"
-				});
-			user.should.have.status(201);
-			user.body.should.be.a('object');
-			user.body.should.have.property('customer');
-			user.body.customer.should.have.property('customer_id');
-			user.body.should.have.property('access_token');
-
-			const loggedInUser = await chai.request(server)
-				.post('/api/customer/login')
+				.post('/api/customers/login')
 				.send({
 					email: 'email@turing.com',
 					password: 'santos'
 				});
-
-			loggedInUser.should.have.status(200);
-			loggedInUser.body.should.be.a('object');
+			
+			user.should.have.status(200);
+			user.body.should.be.a('object');
 			user.body.should.have.property('customer');
 			user.body.customer.should.have.property('customer_id');
 			user.body.should.have.property('access_token');

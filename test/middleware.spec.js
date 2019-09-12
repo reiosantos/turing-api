@@ -1,8 +1,11 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import server from '../app';
-import UserMiddleware from '../app/middlewares/customerMiddleware';
+import server from '../src';
+import { CUSTOMER_MODAL } from '../src/constants';
+import UserMiddleware from '../src/middlewares/customerMiddleware';
 import { login } from './__helpers__';
+import { mockModel } from './__mocks__/mock-modals';
+import { customerModalMocks } from './__mocks__/mock-objects';
 
 chai.should();
 
@@ -12,6 +15,7 @@ describe('Middleware', () => {
 	let token;
 
 	before(async () => {
+		mockModel(CUSTOMER_MODAL, customerModalMocks);
 		token = await login();
 	});
 
@@ -27,8 +31,7 @@ describe('Middleware', () => {
 			.set('USER-KEY', `Bearer ${token}`)
 			.end((err, res) => {
 				res.should.have.status(404);
-				res.body.should.have.property('code');
-				expect(res.body.code).to.eql('APP_01');
+				res.body.should.have.property('error');
 				done();
 			});
 	});
