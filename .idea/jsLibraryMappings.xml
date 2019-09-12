@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <includedPredefinedLibrary name="Node.js Core" />
+    <file url="PROJECT" libraries="{@types/babel-core, @types/chai, @types/eslint, @types/eslint-plugin-prettier, @types/express, @types/mocha, @types/sequelize, @types/sequelize-fixtures, @types/sinon, @types/sinon-chai, @types/sinon-express-mock, @types/stripe, @types/stripe-v3, @types/stripejs, @types/validator}" />
   </component>
 </project>

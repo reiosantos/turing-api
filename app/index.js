@@ -4,6 +4,7 @@ import express from 'express';
 import expressValidator from 'express-validator';
 import morgan from 'morgan';
 import env from '../config/environment';
+import {errors} from './constants';
 import routes from './routes';
 
 const app = express();
@@ -26,9 +27,8 @@ app.use(expressValidator());
 
 routes(app);
 
-app.use((req, res) => res.status(404)
-	.json({
-		message: 'Not Found. Use /api to access the api.'
-	}));
+app.use((req, res) => res.status(404).json(errors.urlNotFound));
+
+require('./helpers/passport');
 
 export default app;

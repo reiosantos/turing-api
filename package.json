@@ -15,15 +15,15 @@
   "scripts": {
     "serve": "nodemon --exec babel-node lib/app/server.js",
     "build": "rimraf lib/ && babel ./ --out-dir lib/ --ignore ./node_modules",
-    "start": "NODE_ENV=production yarn run build && yarn run serve",
+    "start": "NODE_ENV=production npm run build && npm run serve",
     "start:dev": "NODE_ENV=development DEBUG=turing-api nodemon --exec babel-node app/server.js",
     "lint": "node_modules/.bin/eslint ./",
     "test": "NODE_ENV=test mocha --require @babel/register --require dotenv/config --exit",
-    "test:coverage": "NODE_ENV=test npm run db:rollmigrate && nyc mocha --require @babel/register --require dotenv/config --exit",
+    "test:coverage": "NODE_ENV=test npm run db:rollmigrate && NODE_ENV=test nyc mocha --require @babel/register --require dotenv/config --exit",
     "db:seed": "node_modules/.bin/sequelize db:seed:all",
     "db:migrate": "node_modules/.bin/sequelize db:migrate",
     "db:rollback": "node_modules/.bin/sequelize db:migrate:undo:all",
-    "db:rollmigrate": "yarn db:rollback && yarn db:migrate && yarn db:seed"
+    "db:rollmigrate": "npm run db:rollback && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
     "@babel/runtime": "^7.2.0",

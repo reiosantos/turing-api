@@ -25,6 +25,10 @@ const envExists = (env) => {
     \n${undefinedVariables.join('\n')}`);
 };
 
+if (process.env.TEST_DATABASE_URL1) {
+	process.env['TEST_DATABASE_URL'] = process.env.TEST_DATABASE_URL1
+}
+
 const DATABASE_URL = process.env.NODE_ENV === 'test'
 	? process.env.TEST_DATABASE_URL
 	: process.env.DATABASE_URL;
