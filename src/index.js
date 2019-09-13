@@ -62,10 +62,11 @@ if (!isProduction) {
 	// eslint-disable-next-line no-unused-vars
 	app.use((err, req, res, next) => {
 		log(err.stack);
+		if (err.inner) delete err.inner;
 		res.status(err.status || 500).json({
 			error: {
 				message: err.message,
-				error: err,
+				...err,
 			},
 			status: false,
 		});
@@ -75,6 +76,7 @@ if (!isProduction) {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
 	// eslint-disable-line no-unused-vars
+	if (err.inner) delete err.inner;
 	return res.status(err.status || 500).json({
 		error: {
 			message: err.message,

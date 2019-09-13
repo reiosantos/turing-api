@@ -1,3 +1,5 @@
+import MailHelper from '../../src/helpers/email';
+import StripeHelper from '../../src/helpers/stripe';
 import ModelFactory from '../../src/models/models.factory';
 import sinon from 'sinon';
 
@@ -19,7 +21,7 @@ function spreadMockData(data) {
 	destroyResult = data['destroyResult'] || destroyResult;
 }
 
-export function mockModel(modal = 'customer', data = {}) {
+export function mockModel(modal, data = {}) {
 	const MockModel = ModelFactory.getModel(modal);
 	spreadMockData(data);
 	
@@ -37,6 +39,22 @@ export function mockModelFunction(modal, functionName, data) {
 		MockModel[functionName].restore();
 	} catch (e) {}
 	sandbox.stub(MockModel, functionName).returns(data);
+}
+
+export function mockStripe(returnData) {
+	try {
+		StripeHelper.makeCharge.restore();
+	} catch (e) {}
+	sandbox.stub(StripeHelper, 'makeCharge')
+		.returns(returnData || Promise.resolve({ id: '1dfv5', paid: true }))
+}
+
+export function mockSendMail(returnData) {
+	try {
+		MailHelper.restore();
+	} catch (e) {}
+	sandbox.stub(MailHelper, 'sendMail')
+		.returns(returnData || Promise.resolve({ id: '1dfv5', paid: true }))
 }
 
 export function clearMock() {

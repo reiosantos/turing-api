@@ -19,6 +19,12 @@
  */
 
 
+import moment from 'moment';
+import { errors, ORDER_MODAL } from '../constants';
+import MailHelper from '../helpers/email';
+import StripeHelper  from '../helpers/stripe';
+import DatabaseWrapper from '../models';
+
 /**
  *
  *
@@ -180,13 +186,52 @@ class ShoppingCartController {
 	 * @param {*} next
 	 */
 	static async processStripePayment(req, res, next) {
-		const { email, stripeToken, order_id } = req.body; // eslint-disable-line
-		const { customer_id } = req;  // eslint-disable-line
+		const { currency, stripeToken, order_id, amount, description } = req.body; // eslint-disable-line
+		const { customer_id, userData } = req;  // eslint-disable-line
+		
 		try {
-			// implement code to process payment and send order confirmation email here
-		} catch (error) {
-			return next(error);
+			let order = await DatabaseWrapper.findOne(ORDER_MODAL, { order_id, customer_id });
+			if (!order) {
+				throw new Error('Order Does not exist')
+			}
+		} catch (e) {
+			return res.status(400).json(errors.getError('ORD_01', 'order', 400));
 		}
+		
+		try {
+			const charge = await StripeHelper.makeCharge({
+				amount,
+				currency: currency || "usd",
+				description,
+				source: stripeToken,
+				metadata: { customer_id, order_id }
+			});
+			const date = moment().format('ddd, MMM Do YYYY HH:mm');
+			MailHelper.sendMail(
+				userData.email,
+				'Turing Shop <no-reply@turing.com>',
+				'Payment Status',
+				`Payment charge through ${date}, for order number ${order_id} has been received`,
+				ShoppingCartController.sendMailHandler
+			);
+			
+			return res.status(201).json(charge);
+		} catch (error) {
+			return res.status(400).json(
+				errors.getError(
+					'APP_01',
+					error.param || '',
+					error.statusCode || 400,
+					error.message));
+		}
+	}
+	
+	static sendMailHandler(error, result) {
+		if (error) {
+			console.log(error);
+			return;
+		}
+		console.log('Customer has been notified of the payment');
 	}
 }
 

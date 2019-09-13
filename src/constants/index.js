@@ -1,4 +1,5 @@
 export const CUSTOMER_MODAL = 'customer';
+export const ORDER_MODAL = 'orders';
 export const DEPARTMENT_MODAL = 'department';
 
 export const errorMessages = {
@@ -18,9 +19,12 @@ export const errorMessages = {
 	CAT_01: 'Don\'t exist category with this ID.',
 	DEP_01: 'The ID is not a number.',
 	DEP_02: 'Don\'exist department with this ID.',
+	ORD_01: 'Don\'exist order with this ID.',
 	PAG_01: 'The order is not matched \'field,(DESC|ASC)\'.',
-	PAG_02: 'The field of order is not allow sorting.',
-	APP_01: 'Resource does not exist.'
+	PAG_02: 'The field of order does not allow sorting.',
+	APP_01: 'Resource does not exist.',
+	PAY_01: 'Payment Failed',
+	PAY_02: 'This Field is empty/invalid',
 };
 
 export const errors = {

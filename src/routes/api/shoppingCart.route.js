@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import ShoppingCartController from '../../controllers/shoppingCart.controller';
+import Helpers from '../../helpers';
+import { auth } from '../../helpers/auth.helpers';
+import ShoppingCartMiddleware from '../../middlewares/shoppingCartMiddleware';
 
 const router = Router();
 router.get('/shoppingcart/generateUniqueId', ShoppingCartController.generateUniqueCart);
@@ -9,17 +12,11 @@ router.put('/shoppingcart/update/:item_id', ShoppingCartController.updateCartIte
 router.delete('/shoppingcart/empty/:cart_id', ShoppingCartController.emptyCart);
 router.delete('/shoppingcart/removeProduct/:item_id', ShoppingCartController.removeItemFromCart);
 router.post('/orders', ShoppingCartController.createOrder);
-router.get(
-  '/orders/inCustomer',
-  ShoppingCartController.getCustomerOrders
-);
-router.get(
-  '/orders/:order_id',
-  ShoppingCartController.getOrderSummary
-);
-router.post(
-  '/stripe/charge',
-  ShoppingCartController.processStripePayment
-);
+router.get('/orders/inCustomer', ShoppingCartController.getCustomerOrders);
+router.get('/orders/:order_id', ShoppingCartController.getOrderSummary);
+
+router.post('/stripe/charge', auth.required, auth.addUserData,
+	ShoppingCartMiddleware.validate('makeCharge'), Helpers.returnErrors,
+	ShoppingCartController.processStripePayment);
 
 export default router;
