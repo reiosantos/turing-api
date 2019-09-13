@@ -36,16 +36,15 @@ describe('Middleware', () => {
 			});
 	});
 
-	// it('should return 401', (done) => {
-	// TODO: this will be uncommenteed out when an endpoint that requires a USER-KEY header is
-	//  written
-	// 	chai.request(server)
-	// 		.post('/api/customer/users')
-	// 		.end((err, res) => {
-	// 			res.should.have.status(401);
-	// 			res.body.should.have.property('message');
-	// 			expect(res.body.message).to.eql('No authorization token was found');
-	// 			done();
-	// 		});
-	// });
+	it('should return 401', (done) => {
+		chai.request(server)
+			.post('/api/stripe/charge')
+			.end((err, res) => {
+				res.should.have.status(401);
+				res.body.should.have.property('error');
+				res.body.error.should.have.property('name');
+				expect(res.body.error.name).to.eql('UnauthorizedError');
+				done();
+			});
+	});
 });

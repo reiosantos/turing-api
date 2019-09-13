@@ -1,6 +1,6 @@
 import models from '../database/models';
 
-const { Customer } = models;
+const { Customer, Order } = models;
 
 class ModelFactory {
 	/**
@@ -15,6 +15,7 @@ class ModelFactory {
 		const modelName = name.toLowerCase();
 
 		if (modelName.match(/^customers?$/)) return Customer;
+		if (modelName.match(/^orders?$/)) return Order;
 
 		return null;
 	};

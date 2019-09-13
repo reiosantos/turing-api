@@ -1,3 +1,4 @@
+import { CUSTOMER_MODAL } from '../constants';
 import Helpers from '../helpers';
 import ModelFactory from './models.factory';
 
@@ -10,7 +11,10 @@ class DatabaseWrapper {
 	 */
 	static async createOne(objectName, document) {
 		const Modal = ModelFactory.getModel(objectName);
-		return Modal.create(document);
+		const data = Modal.create(document);
+		
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
+		return data;
 	}
 
 	/**
@@ -30,13 +34,16 @@ class DatabaseWrapper {
 		const Modal = ModelFactory.getModel(objectName);
 		const modifiedWhere = Helpers.modifyWhereClause(objectName, where);
 
-		return Modal.findAll({
+		const data = Modal.findAll({
 			attributes,
 			where: modifiedWhere,
 			raw,
 			include,
 			order
 		});
+		
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
+		return data;
 	}
 
 	/**
@@ -67,7 +74,7 @@ class DatabaseWrapper {
 				raw
 			});
 		}
-		// if (data && data.dataValues) return data.dataValues;
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
 		return data;
 	}
 
@@ -103,7 +110,7 @@ class DatabaseWrapper {
 				}.`
 			);
 		}
-		if (data && data.dataValues) return data.dataValues;
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
 		return data;
 	}
 
@@ -117,7 +124,7 @@ class DatabaseWrapper {
 		const Modal = ModelFactory.getModel(objectName);
 		const data = await Modal.destroy({ where });
 
-		if (data && data.dataValues) return data.dataValues;
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
 		return data;
 	}
 }

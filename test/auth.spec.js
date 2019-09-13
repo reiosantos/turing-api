@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import server from '../src';
+import { CUSTOMER_MODAL } from '../src/constants';
 import { clearMock, mockModel, mockModelFunction } from './__mocks__/mock-modals';
 import { customerModalMocks, customerObject } from './__mocks__/mock-objects';
 
@@ -11,7 +12,7 @@ chai.use(chaiHttp);
 
 describe('Authentication', () => {
 	beforeEach( () => {
-		mockModel('customer', customerModalMocks);
+		mockModel(CUSTOMER_MODAL, customerModalMocks);
 	});
 	
 	afterEach(() => {
@@ -20,7 +21,7 @@ describe('Authentication', () => {
 
 	describe('Create Customer', () => {
 		it('should create new customer account', (done) => {
-			mockModelFunction('customer', 'findOne', null);
+			mockModelFunction(CUSTOMER_MODAL, 'findOne', null);
 			
 			chai.request(server)
 				.post('/api/customers')
@@ -30,7 +31,6 @@ describe('Authentication', () => {
 					name: 'Moses'
 				})
 				.end((err, res) => {
-					console.log(res.body);
 					res.should.have.status(201);
 					res.body.should.be.a('object');
 					res.body.should.have.property('customer');
@@ -67,7 +67,7 @@ describe('Authentication', () => {
 		});
 
 		it('Invalid credentials', (done) => {
-			mockModelFunction('customer', 'findOne', {
+			mockModelFunction(CUSTOMER_MODAL, 'findOne', {
 				dataValues: customerObject,
 				validatePassword: sinon.fake.returns(Promise.resolve(false)),
 				getSafeDataValues: sinon.fake.returns(customerObject)

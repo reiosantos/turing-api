@@ -1,5 +1,6 @@
 // import bcrypt from 'bcrypt';
 import express_jwt from 'express-jwt';
+import { header } from 'express-validator/check';
 import jwt from 'jsonwebtoken';
 import { CUSTOMER_MODAL, errors } from '../constants';
 import DatabaseWrapper from '../models';
@@ -54,9 +55,9 @@ export function toAuthJSON(user) {
 
 const getTokenFromHeaders = (req) => {
 	const { headers } = req;
-	const authorization = headers['USER-KEY'];
+	const authorization = headers['USER-KEY'] || headers['user-key'];
 	
-	if (authorization && authorization.split(' ')[0].toLowerCase() === 'Bearer') {
+	if (authorization && authorization.split(' ')[0].toLowerCase() === 'bearer') {
 		return authorization.split(' ')[1];
 	}
 	return null;
@@ -65,12 +66,14 @@ const getTokenFromHeaders = (req) => {
 const addUserData = async (req, res, next) => {
 	const payload = jwt.decode(getTokenFromHeaders(req));
 	
-	const user = await DatabaseWrapper.findOne(CUSTOMER_MODAL, payload.identity);
+	let user = await DatabaseWrapper.findOne(CUSTOMER_MODAL, payload.identity);
 	if (!user) {
 		return res.status(401)
 			.json(errors.unauthorized);
 	}
 	
+	user = user.getSafeDataValues();
+	req.customer_id = user.customer_id;
 	req.userData = {
 		...user,
 		password: undefined
