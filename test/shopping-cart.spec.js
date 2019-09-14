@@ -3,7 +3,13 @@ import chaiHttp from 'chai-http';
 import server from '../src';
 import { CUSTOMER_MODAL, ORDER_MODAL } from '../src/constants';
 import { login } from './__helpers__';
-import { clearMock, mockModel, mockModelFunction, mockStripe } from './__mocks__/mock-modals';
+import {
+	clearMock,
+	mockModel,
+	mockModelFunction,
+	mockSendMail,
+	mockStripe
+} from './__mocks__/mock-modals';
 import { customerModalMocks, orderModalMocks, orderObject } from './__mocks__/mock-objects';
 
 chai.should();
@@ -24,6 +30,7 @@ describe('ShoppingCart', () => {
 		mockModel(CUSTOMER_MODAL, customerModalMocks);
 		mockModel(ORDER_MODAL, orderModalMocks);
 		mockStripe();
+		mockSendMail();
 	});
 	
 	beforeEach(async () => {
@@ -61,7 +68,6 @@ describe('ShoppingCart', () => {
 				.set({ 'USER-KEY': token })
 				.send(chargeData)
 				.end((err, res) => {
-					console.log(res.body);
 					res.should.have.status(201);
 					res.body.should.be.a('object');
 					res.body.should.have.property('id');

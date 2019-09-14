@@ -7,6 +7,7 @@ let sandbox = sinon.createSandbox();
 
 let createResult = {};
 let findAllResult = {};
+let findAndCountAllResult = {};
 let findByPkResult = {};
 let findOneResult = {};
 let updateResult = {};
@@ -15,6 +16,7 @@ let destroyResult = {};
 function spreadMockData(data) {
 	createResult = data['createResult'] || createResult;
 	findAllResult = data['findAllResult'] || findAllResult;
+	findAndCountAllResult = data['findAndCountAllResult'] || findAndCountAllResult;
 	findByPkResult = data['findByPkResult'] || findByPkResult;
 	findOneResult = data['findOneResult'] || findOneResult;
 	updateResult = data['updateResult'] || updateResult;
@@ -27,6 +29,7 @@ export function mockModel(modal, data = {}) {
 	
 	sandbox.stub(MockModel, 'create').returns(createResult);
 	sandbox.stub(MockModel, 'findAll').returns(findAllResult);
+	sandbox.stub(MockModel, 'findAndCountAll').returns(findAndCountAllResult);
 	sandbox.stub(MockModel, 'findByPk').returns(findByPkResult);
 	sandbox.stub(MockModel, 'findOne').returns(findOneResult);
 	sandbox.stub(MockModel, 'update').returns(updateResult);
@@ -60,6 +63,7 @@ export function mockSendMail(returnData) {
 export function clearMock() {
 	createResult = {};
 	findAllResult = {};
+	findAndCountAllResult = {};
 	findByPkResult = {};
 	findOneResult = {};
 	updateResult = {};

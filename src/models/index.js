@@ -1,6 +1,6 @@
 import { CUSTOMER_MODAL } from '../constants';
-import Helpers from '../helpers';
 import ModelFactory from './models.factory';
+import Cache from '../helpers/cache';
 
 class DatabaseWrapper {
 	/**
@@ -31,12 +31,46 @@ class DatabaseWrapper {
 		objectName, where = {}, attributes = undefined,
 		include = [{ all: true }], order = [], raw = false
 	) {
+		const cache = new Cache();
+		const data = await cache.get(`findAll-${objectName}`, async () => {
+			const Modal = ModelFactory.getModel(objectName);
+			
+			return Modal.findAll({
+				attributes,
+				where,
+				raw,
+				include,
+				order
+			});
+		});
+		
+		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
+		return data;
+	}
+	
+	/**
+	 *
+	 * @param objectName {string}
+	 * @param where {Object}
+	 * @param attributes {Array}
+	 * @param include {Array}
+	 * @param order {Array}
+	 * @param raw {boolean}
+	 * @param limit
+	 * @param offset
+	 * @returns {*}
+	 */
+	static async findAndCountAll(
+		objectName, where = {}, attributes = undefined,
+		include = [{ all: true }], order = [], raw = false, limit, offset
+	) {
 		const Modal = ModelFactory.getModel(objectName);
-		const modifiedWhere = Helpers.modifyWhereClause(objectName, where);
-
-		const data = Modal.findAll({
+		
+		const data = Modal.findAndCountAll({
+			limit,
+			offset,
 			attributes,
-			where: modifiedWhere,
+			where,
 			raw,
 			include,
 			order
@@ -58,22 +92,27 @@ class DatabaseWrapper {
 	static async findOne(
 		objectName, where = {}, attributes = undefined, include = [{ all: true }], raw = false
 	) {
-		const Modal = ModelFactory.getModel(objectName);
-		let data;
-		if (typeof where === 'string') {
-			data = await Modal.findByPk(where, {
-				include,
-				attributes,
-				raw
-			});
-		} else {
-			data = await Modal.findOne({
-				where,
-				include,
-				attributes,
-				raw
-			});
-		}
+		const cache = new Cache();
+		const data = await cache.get(`findOne-${objectName}`, async () => {
+			const Modal = ModelFactory.getModel(objectName);
+			let data_;
+			if (typeof where === 'string') {
+				data_ = await Modal.findByPk(where, {
+					include,
+					attributes,
+					raw
+				});
+			} else {
+				data_ = await Modal.findOne({
+					where,
+					include,
+					attributes,
+					raw
+				});
+			}
+			return data_;
+		});
+		
 		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
 		return data;
 	}

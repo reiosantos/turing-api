@@ -20,25 +20,23 @@ export const customerObject = {
 };
 
 export const orderObject = {
-	order_id: 1,
-	name: "santos",
-	email: "santos@turing.com",
-	password: "sotnas",
-	credit_card: null,
-	address_1: null,
-	address_2: null,
-	city: null,
-	region: null,
-	postal_code: null,
-	country: null,
-	shipping_region_id: 1,
-	day_phone: null,
-	eve_phone: null,
-	mob_phone: null,
-	Orders: []
+	product_id: 2,
+	name: "Chartres Cathedral",
+	description: "\"The Fur Merchants\". Not all the beautiful stained glass in the great cathedrals depicts saints and angels! Lay aside your furs for the summer and wear this beautiful T-shirt!",
+	price: "16.95",
+	discounted_price: "15.95",
+	thumbnail: "chartres-cathedral-thumbnail.gif"
 };
 
-
+export const productObject = {
+	order_id: 1,
+	product_id: 1,
+	attributes: "LG, Red",
+	product_name: "Arc d'Triomphe",
+	quantity: 1,
+	unit_cost: "14.99",
+	subtotal: "14.99"
+};
 
 export const customerModalMocks = {
 	createResult: {
@@ -65,6 +63,24 @@ export const orderModalMocks = {
 		dataValues: orderObject,
 	},
 	findAllResult: [],
+	findByPkResult: null,
+	updateResult: null,
+	destroyResult: null
+};
+
+export const productModalMocks = {
+	createResult: {
+		dataValues: productObject,
+	},
+	findOneResult: {
+		dataValues: productObject,
+	},
+	findAllResult: {
+		dataValues: [productObject, productObject]
+	},
+	findAndCountAllResult: {
+		dataValues: [productObject, productObject]
+	},
 	findByPkResult: null,
 	updateResult: null,
 	destroyResult: null
