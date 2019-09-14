@@ -1,10 +1,6 @@
 import { errors } from '../constants';
 
 class Helpers {
-	static modifyWhereClause(objectModel, where = {}) {
-		return { ...where };
-	}
-	
 	static async returnErrors(req, res, next) {
 		const _errors = await req.getValidationResult();
 		if (_errors.isEmpty()) {

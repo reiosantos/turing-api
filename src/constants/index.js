@@ -1,6 +1,8 @@
 export const CUSTOMER_MODAL = 'customer';
-export const ORDER_MODAL = 'orders';
-export const DEPARTMENT_MODAL = 'department';
+export const ORDER_MODAL = 'order';
+export const PRODUCT_MODAL = 'product';
+
+export const TTL = 60 * 60;
 
 export const errorMessages = {
 	AUT_01: 'Authorization code is empty.',
@@ -23,8 +25,10 @@ export const errorMessages = {
 	PAG_01: 'The order is not matched \'field,(DESC|ASC)\'.',
 	PAG_02: 'The field of order does not allow sorting.',
 	APP_01: 'Resource does not exist.',
+	PDT_01: 'This value is not a valid number.',
 	PAY_01: 'Payment Failed',
 	PAY_02: 'This Field is empty/invalid',
+	PAY_03: 'No Data Found',
 };
 
 export const errors = {

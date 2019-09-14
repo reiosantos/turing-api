@@ -17,7 +17,9 @@
  *  NB: Check the BACKEND CHALLENGE TEMPLATE DOCUMENTATION in the readme of this repository to see our recommended
  *  endpoints, request body/param, and response object for each of these method
  */
+import { errors, PRODUCT_MODAL } from '../constants';
 import { Attribute, AttributeValue, Department, Product, Sequelize } from '../database/models';
+import DatabaseWrapper from '../models';
 
 const { Op } = Sequelize;
 
@@ -39,20 +41,27 @@ class ProductController {
 	 */
 	static async getAllProducts(req, res, next) {
 		const { query } = req;
-		const { page, limit, offset } = query;
-		const sqlQueryMap = {
-			limit,
-			offset
-		};
+		let { page = 0, limit: pageSize = 20, description_length = 200 } = query;
+		
+		page = Number.parseInt(page);
+		pageSize = Number.parseInt(pageSize);
+		description_length = Number.parseInt(description_length);
+		
+		if (page < 0) page = 0;
+		const offset = pageSize * page;
+		const limit = offset + pageSize;
 		try {
-			const products = await Product.findAndCountAll(sqlQueryMap);
-			return res.status(200)
-				.json({
-					status: true,
-					products
-				});
+			const where = Sequelize.where(
+				Sequelize.fn('CHAR_LENGTH', Sequelize.col('Product.description')),
+				{ [Op.lte]: description_length });
+			
+			const products = await DatabaseWrapper.findAndCountAll(
+				PRODUCT_MODAL, where, undefined, [], undefined,
+				undefined, limit, offset);
+			
+			return res.status(200).json({ status: true, products });
 		} catch (error) {
-			return next(error);
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
 		}
 	}
 	
@@ -70,8 +79,7 @@ class ProductController {
 		const { query_string, all_words } = req.query;  // eslint-disable-line
 		// all_words should either be on or off
 		// implement code to search product
-		return res.status(200)
-			.json({ message: 'this works' });
+		return res.status(200).json({ message: 'this works' });
 	}
 	
 	/**
