@@ -1,4 +1,4 @@
-import { query } from 'express-validator/check';
+import { param, query } from 'express-validator/check';
 
 class ValidatorHelper {
 	static validateGetProducts = () => [
@@ -12,6 +12,14 @@ class ProductMiddleware {
 	static validate(method) {
 		if (method === 'getProducts') {
 			return ValidatorHelper.validateGetProducts();
+		} if (method === 'getProductInCategory') {
+			return [
+				param('category_id', 'PAY_02').exists()
+			];
+		} if (method === 'getProductInDepartment') {
+			return [
+				param('department_id', 'PAY_02').exists()
+			];
 		} else {
 			return [];
 		}

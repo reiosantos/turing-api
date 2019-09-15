@@ -1,6 +1,6 @@
 import models from '../database/models';
 
-const { Customer, Order, Product, ShoppingCart } = models;
+const { Customer, Order, Product, ShoppingCart, ProductCategory, Category } = models;
 
 class ModelFactory {
 	/**
@@ -18,6 +18,8 @@ class ModelFactory {
 		if (modelName.match(/^orders?$/)) return Order;
 		if (modelName.match(/^products?$/)) return Product;
 		if (modelName.match(/^shopping_cart?$/)) return ShoppingCart;
+		if (modelName.match(/^product_category$/)) return ProductCategory;
+		if (modelName.match(/^category$/)) return Category;
 
 		return null;
 	};
