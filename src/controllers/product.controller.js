@@ -17,8 +17,9 @@
  *  NB: Check the BACKEND CHALLENGE TEMPLATE DOCUMENTATION in the readme of this repository to see our recommended
  *  endpoints, request body/param, and response object for each of these method
  */
-import { errors, PRODUCT_MODAL } from '../constants';
-import { Attribute, AttributeValue, Department, Product, Sequelize } from '../database/models';
+import { CATEGORY_MODAL, errors, PRODUCT_CATEGORY_MODAL, PRODUCT_MODAL } from '../constants';
+import { Department, Sequelize } from '../database/models';
+import Helpers from '../helpers';
 import DatabaseWrapper from '../models';
 
 const { Op } = Sequelize;
@@ -40,16 +41,7 @@ class ProductController {
 	 * @memberof ProductController
 	 */
 	static async getAllProducts(req, res, next) {
-		const { query } = req;
-		let { page = 0, limit: pageSize = 20, description_length = 200 } = query;
-		
-		page = Number.parseInt(page);
-		pageSize = Number.parseInt(pageSize);
-		description_length = Number.parseInt(description_length);
-		
-		if (page < 0) page = 0;
-		const offset = pageSize * page;
-		const limit = offset + pageSize;
+		let { description_length, offset, limit } = Helpers.paginate(req);
 		try {
 			const where = Sequelize.where(
 				Sequelize.fn('CHAR_LENGTH', Sequelize.col('Product.description')),
@@ -59,7 +51,7 @@ class ProductController {
 				PRODUCT_MODAL, where, undefined, [], undefined,
 				undefined, limit, offset);
 			
-			return res.status(200).json({ status: true, products });
+			return res.status(200).json(products);
 		} catch (error) {
 			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
 		}
@@ -93,26 +85,26 @@ class ProductController {
 	 * @memberof ProductController
 	 */
 	static async getProductsByCategory(req, res, next) {
-		
 		try {
-			const { category_id } = req.params; // eslint-disable-line
-			const products = await Product.findAndCountAll({
-				include: [
-					{
-						model: Department,
-						where: {
-							category_id
-						},
-						attributes: []
-					}
-				],
-				limit,
-				offset
-			});
-			return next(products);
+			const products = await ProductController.getProductsForCategory(req);
+			return res.status(200).json({ count: products.length, rows: products });
 		} catch (error) {
-			return next(error);
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
 		}
+	}
+	
+	static async getProductsForCategory(req) {
+		let { offset, limit } = Helpers.paginate(req);
+		const { category_id } = req.params;
+		
+		let products = await DatabaseWrapper.findAndCountAll(
+			PRODUCT_CATEGORY_MODAL, { category_id }, undefined, undefined, undefined,
+			undefined, limit, offset);
+		
+		products = products.rows.map(product => {
+			return product.dataValues.product;
+		});
+		return products;
 	}
 	
 	/**
@@ -126,7 +118,21 @@ class ProductController {
 	 * @memberof ProductController
 	 */
 	static async getProductsByDepartment(req, res, next) {
-		// implement the method to get products by department
+		try {
+			const { department_id } = req.params;
+			const categories = await DatabaseWrapper.findAndCountAll(CATEGORY_MODAL, { department_id }, undefined, []);
+			
+			const data = [];
+			for (let i = 0; i < categories.rows.length; i++) {
+				let category = categories.rows[i];
+				req.params.category_id = category.dataValues.category_id;
+				const dt = await ProductController.getProductsForCategory(req);
+				data.push(...dt);
+			}
+			return res.status(200).json({ count: data.length, rows: data });
+		} catch (error) {
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
+		}
 	}
 	
 	/**
@@ -141,30 +147,12 @@ class ProductController {
 	 */
 	static async getProduct(req, res, next) {
 		
-		const { product_id } = req.params;  // eslint-disable-line
 		try {
-			const product = await Product.findByPk(product_id, {
-				include: [
-					{
-						model: AttributeValue,
-						as: 'attributes',
-						attributes: ['value'],
-						through: {
-							attributes: []
-						},
-						include: [
-							{
-								model: Attribute,
-								as: 'attribute_type'
-							}
-						]
-					}
-				]
-			});
-			return res.status(500)
-				.json({ message: 'This works!!1' });
+			const { product_id } = req.params;
+			const products = await DatabaseWrapper.findOne(PRODUCT_MODAL, { product_id });
+			return res.status(200).json(products);
 		} catch (error) {
-			return next(error);
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
 		}
 	}
 	

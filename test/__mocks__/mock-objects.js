@@ -49,6 +49,15 @@ export const cartObject = {
 	Product: null
 };
 
+export const categoryObject = {
+	dataValues: {
+		category_id: 1,
+		department_id: "1234",
+		name: "LG, Red",
+		description: "3456ytr"
+	}
+};
+
 export const customerModalMocks = {
 	createResult: {
 		dataValues: customerObject,
@@ -101,6 +110,38 @@ export const productModalMocks = {
 	},
 	findAllResult: {
 		dataValues: [productObject, productObject]
+	},
+	findAndCountAllResult: {
+		dataValues: { count: 2, rows: [productObject, productObject] }
+	},
+	findByPkResult: null,
+	updateResult: null,
+	destroyResult: null
+};
+
+export const categoryModalMocks = {
+	createResult: {
+		dataValues: categoryObject,
+	},
+	findOneResult: {
+		dataValues: categoryObject,
+	},
+	findAllResult: [categoryObject, categoryObject],
+	findAndCountAllResult: {
+		dataValues: { count: 2, rows: [categoryObject, categoryObject] }
+	},
+	findByPkResult: null,
+	updateResult: null,
+	destroyResult: null
+};
+
+export const productCategoryModalMocks = {
+	createResult: null,
+	findOneResult: {
+		dataValues: productObject,
+	},
+	findAllResult: {
+		dataValues: []
 	},
 	findAndCountAllResult: {
 		dataValues: [productObject, productObject]

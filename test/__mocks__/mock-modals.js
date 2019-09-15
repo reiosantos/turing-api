@@ -44,6 +44,13 @@ export function mockModelFunction(modal, functionName, data) {
 	sandbox.stub(MockModel, functionName).returns(data);
 }
 
+export function mockClassMethod(className, method, data) {
+	try {
+		className[method].restore();
+	} catch (e) {}
+	sandbox.stub(className, method).returns(data);
+}
+
 export function mockStripe(returnData) {
 	try {
 		StripeHelper.makeCharge.restore();

@@ -2,6 +2,8 @@ export const CUSTOMER_MODAL = 'customer';
 export const ORDER_MODAL = 'order';
 export const PRODUCT_MODAL = 'product';
 export const SHOPPING_CART_MODAL = 'shopping_cart';
+export const PRODUCT_CATEGORY_MODAL = 'product_category';
+export const CATEGORY_MODAL = 'category';
 
 export const TTL = 60 * 60;
 
