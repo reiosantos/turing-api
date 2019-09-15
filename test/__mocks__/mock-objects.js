@@ -29,13 +29,15 @@ export const orderObject = {
 };
 
 export const productObject = {
-	order_id: 1,
 	product_id: 1,
-	attributes: "LG, Red",
-	product_name: "Arc d'Triomphe",
-	quantity: 1,
-	unit_cost: "14.99",
-	subtotal: "14.99"
+	name: "Thomas Moore",
+	description: "One of the greatest if not the greatest of Irish poets and writers, Moore led a very interesting life, though plagued with tragedy in a somewhat typically Irish way. Remember \"The Last Rose of Summer\"?",
+	price: "15.95",
+	discounted_price: "14.99",
+	image: "thomas-moore.gif",
+	image_2: "thomas-moore-2.gif",
+	thumbnail: "thomas-moore-thumbnail.gif",
+	display: 2,
 };
 
 export const cartObject = {

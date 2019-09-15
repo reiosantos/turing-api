@@ -18,9 +18,10 @@
  *  endpoints, request body/param, and response object for each of these method
  */
 import { CATEGORY_MODAL, errors, PRODUCT_CATEGORY_MODAL, PRODUCT_MODAL } from '../constants';
-import { Department, Sequelize } from '../database/models';
+import { Department, Sequelize, sequelize } from '../database/models';
 import Helpers from '../helpers';
 import DatabaseWrapper from '../models';
+import ModelFactory from '../models/models.factory';
 
 const { Op } = Sequelize;
 
@@ -68,10 +69,21 @@ class ProductController {
 	 * @memberof ProductController
 	 */
 	static async searchProduct(req, res, next) {
-		const { query_string, all_words } = req.query;  // eslint-disable-line
-		// all_words should either be on or off
-		// implement code to search product
-		return res.status(200).json({ message: 'this works' });
+		let { query_string, all_words = "on" } = req.query;
+		try {
+			let { offset, limit } = Helpers.paginate(req);
+			
+			if (all_words.toLowerCase() === 'on') {
+				query_string = query_string.split(' ').map(word => `+${word}`).join(' ');
+			}
+			const modal = ModelFactory.getModel(PRODUCT_MODAL);
+			const products = await DatabaseWrapper.fullTextSearchQuery(modal.tableName,
+				undefined, 'name', limit, offset, query_string);
+			
+			return res.status(200).json({ count: products.length, rows: products });
+		} catch (error) {
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
+		}
 	}
 	
 	/**
@@ -146,10 +158,12 @@ class ProductController {
 	 * @memberof ProductController
 	 */
 	static async getProduct(req, res, next) {
-		
 		try {
 			const { product_id } = req.params;
 			const products = await DatabaseWrapper.findOne(PRODUCT_MODAL, { product_id });
+			if (!products) {
+				return res.status(404).json(errors.getError('APP_01', 'product', 404));
+			}
 			return res.status(200).json(products);
 		} catch (error) {
 			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));

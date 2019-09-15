@@ -1,6 +1,7 @@
 import { CUSTOMER_MODAL } from '../constants';
 import ModelFactory from './models.factory';
 import Cache from '../helpers/cache';
+import { Sequelize, sequelize } from '../database/models';
 
 class DatabaseWrapper {
 	/**
@@ -77,6 +78,25 @@ class DatabaseWrapper {
 		});
 		
 		if (data && data.dataValues && objectName !== CUSTOMER_MODAL) return data.dataValues;
+		return data;
+	}
+	
+	/**
+	 *
+	 * @param tableName
+	 * @param returnColumns
+	 * @param searchColumns
+	 * @param limit
+	 * @param offset
+	 * @param query
+	 * @returns {*}
+	 */
+	static async fullTextSearchQuery(tableName, returnColumns = '*', searchColumns, limit, offset, query) {
+		
+		const searchQuery = `SELECT ${returnColumns} FROM ${tableName} WHERE MATCH(${searchColumns}) AGAINST("${query}" in natural language mode) LIMIT ${limit} OFFSET ${offset}`;
+		
+		const data = await sequelize.query(searchQuery, { type: Sequelize.QueryTypes.SELECT });
+		if (data && data.dataValues) return data.dataValues;
 		return data;
 	}
 

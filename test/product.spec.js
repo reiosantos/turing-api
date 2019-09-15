@@ -8,6 +8,7 @@ import {
 	PRODUCT_MODAL
 } from '../src/constants';
 import ProductController from '../src/controllers/product.controller';
+import DatabaseWrapper from '../src/models';
 import { login } from './__helpers__';
 import { clearMock, mockClassMethod, mockModel, mockModelFunction } from './__mocks__/mock-modals';
 import {
@@ -90,6 +91,19 @@ describe('Product', () => {
 					res.should.have.status(200);
 					res.body.should.be.a('object');
 					res.body.should.have.property('product_id');
+					done();
+				});
+		});
+		
+		it('should return product based on search term (fullTextSearchQuery)', (done) => {
+			mockClassMethod(DatabaseWrapper, 'fullTextSearchQuery', [productObject]);
+			chai.request(server)
+				.get('/api/products/search?query_string=thomas&all_words=off')
+				.end((err, res) => {
+					res.should.have.status(200);
+					res.body.should.be.a('object');
+					res.body.should.have.property('count');
+					expect(res.body.count).to.eql(1);
 					done();
 				});
 		});
