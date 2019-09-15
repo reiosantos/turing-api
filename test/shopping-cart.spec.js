@@ -89,7 +89,6 @@ describe('ShoppingCart', () => {
 			chai.request(server)
 				.get('/api/shoppingcart/generateUniqueId')
 				.end((err, res) => {
-					console.log(res.body);
 					res.should.have.status(200);
 					res.body.should.be.a('object');
 					res.body.should.have.property('cart_id');

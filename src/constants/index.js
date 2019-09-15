@@ -30,7 +30,7 @@ export const errorMessages = {
 	APP_01: 'Resource does not exist.',
 	PDT_01: 'This value is not a valid number.',
 	PAY_01: 'Payment Failed',
-	PAY_02: 'This Field is empty/invalid',
+	PAY_02: 'This Field is empty/not valid',
 	PAY_03: 'No Data Found',
 };
 
