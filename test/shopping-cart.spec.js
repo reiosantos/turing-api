@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../src';
-import { CUSTOMER_MODAL, ORDER_MODAL } from '../src/constants';
+import { CUSTOMER_MODAL, ORDER_MODAL, SHOPPING_CART_MODAL } from '../src/constants';
 import { login } from './__helpers__';
 import {
 	clearMock,
@@ -10,7 +10,12 @@ import {
 	mockSendMail,
 	mockStripe
 } from './__mocks__/mock-modals';
-import { customerModalMocks, orderModalMocks, orderObject } from './__mocks__/mock-objects';
+import {
+	cartModalMocks,
+	customerModalMocks,
+	orderModalMocks,
+	orderObject
+} from './__mocks__/mock-objects';
 
 chai.should();
 
@@ -29,6 +34,7 @@ describe('ShoppingCart', () => {
 		clearMock();
 		mockModel(CUSTOMER_MODAL, customerModalMocks);
 		mockModel(ORDER_MODAL, orderModalMocks);
+		mockModel(SHOPPING_CART_MODAL, cartModalMocks);
 		mockStripe();
 		mockSendMail();
 	});
@@ -77,4 +83,83 @@ describe('ShoppingCart', () => {
 				});
 		});
 	});
+	
+	describe('Add Items to cart', () => {
+		it('should generate unique cart ID', (done) => {
+			chai.request(server)
+				.get('/api/shoppingcart/generateUniqueId')
+				.end((err, res) => {
+					console.log(res.body);
+					res.should.have.status(200);
+					res.body.should.be.a('object');
+					res.body.should.have.property('cart_id');
+					done();
+				});
+		});
+		
+		it('should fail due to missing data', (done) => {
+			chai.request(server)
+				.post('/api/shoppingcart/add')
+				.send({
+					cart_id: "1234",
+					product_id: 3,
+					quantity: 7
+				})
+				.end((err, res) => {
+					res.should.have.status(400);
+					res.body.should.be.a('object');
+					res.body.should.have.property('field');
+					expect(res.body.field).to.eql("validation");
+					done();
+				});
+		});
+		
+		it('should add Items to cart', (done) => {
+			mockModelFunction(SHOPPING_CART_MODAL, 'findAll', {dataValues: [{
+					cart_id: "1234",
+					product_id: 3,
+					attributes: "LG, Red",
+					quantity: 7
+				}]});
+			chai.request(server)
+				.post('/api/shoppingcart/add')
+				.send({
+					cart_id: "1234",
+					product_id: 3,
+					attributes: "LG, Red",
+					quantity: 7
+				})
+				.end((err, res) => {
+					res.should.have.status(201);
+					res.body.should.be.a('array');
+					res.body[0].should.have.property('cart_id');
+					expect(res.body[0].cart_id).to.eql("1234");
+					done();
+				});
+		});
+		
+		it('should Return all Items in a cart', (done) => {
+			mockModelFunction(SHOPPING_CART_MODAL, 'findAll', {dataValues: [{
+					cart_id: "1234",
+					product_id: 3,
+					attributes: "LG, Red",
+					quantity: 7
+				}, {
+					cart_id: "14",
+					product_id: 3,
+					attributes: "LG, Red",
+					quantity: 7
+				}]});
+			chai.request(server)
+				.get('/api/shoppingcart/1234')
+				.end((err, res) => {
+					res.should.have.status(200);
+					res.body.should.be.a('array');
+					res.body.should.have.length(2);
+					expect(res.body[0].cart_id).to.eql("1234");
+					expect(res.body[1].cart_id).to.eql("14");
+					done();
+				});
+		});
+	})
 });

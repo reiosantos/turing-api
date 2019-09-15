@@ -20,7 +20,7 @@
 
 
 import moment from 'moment';
-import { errors, ORDER_MODAL } from '../constants';
+import { errors, ORDER_MODAL, SHOPPING_CART_MODAL } from '../constants';
 import MailHelper from '../helpers/email';
 import StripeHelper  from '../helpers/stripe';
 import DatabaseWrapper from '../models';
@@ -41,9 +41,8 @@ class ShoppingCartController {
 	 * @memberof shoppingCartController
 	 */
 	static generateUniqueCart(req, res) {
-		// implement method to generate unique cart Id
-		return res.status(200)
-			.json({ message: 'this works' });
+		let int = `${Math.random() * (10 ** (10 - 1)) << 0}`;
+		return res.status(200).json({ cart_id: int });
 	}
 	
 	/**
@@ -55,10 +54,20 @@ class ShoppingCartController {
 	 * @returns {json} returns json response with cart
 	 * @memberof ShoppingCartController
 	 */
-	static async addItemToCart(req, res, next) {
-		// implement function to add item to cart
-		return res.status(200)
-			.json({ message: 'this works' });
+	static async addItemToCart(req, res) {
+		try {
+			const { body, customer_id } = req;
+			const { cart_id, product_id, attributes, quantity } = body;
+			
+			await DatabaseWrapper.createOne(SHOPPING_CART_MODAL, {
+				cart_id, product_id, attributes, customer_id, quantity
+			});
+			const data = await DatabaseWrapper.findAll(SHOPPING_CART_MODAL, { cart_id });
+			return res.status(201).json(data);
+		} catch (err) {
+			return res.status(400).json(
+				errors.getError('APP_01', 'order', 400, err.message));
+		}
 	}
 	
 	/**
@@ -72,8 +81,15 @@ class ShoppingCartController {
 	 */
 	static async getCart(req, res, next) {
 		// implement method to get cart items
-		return res.status(200)
-			.json({ message: 'this works' });
+		try {
+			const { params } = req;
+			const { cart_id } = params;
+			
+			const cart = await DatabaseWrapper.findAll(SHOPPING_CART_MODAL, { cart_id });
+			return res.status(200).json(cart);
+		} catch (err) {
+			return res.status(500).send(errors.getError('APP_01', 'cart', 500, err.message));
+		}
 	}
 	
 	/**

@@ -38,6 +38,17 @@ export const productObject = {
 	subtotal: "14.99"
 };
 
+export const cartObject = {
+	item_id: 1,
+	cart_id: "1234",
+	product_id: 2333,
+	attributes: "LG, Red",
+	quantity: 76,
+	buy_now: true,
+	added_on: "2019-09-15T13:23:10.000Z",
+	Product: null
+};
+
 export const customerModalMocks = {
 	createResult: {
 		dataValues: customerObject,
@@ -61,6 +72,19 @@ export const orderModalMocks = {
 	},
 	findOneResult: {
 		dataValues: orderObject,
+	},
+	findAllResult: [],
+	findByPkResult: null,
+	updateResult: null,
+	destroyResult: null
+};
+
+export const cartModalMocks = {
+	createResult: {
+		dataValues: cartObject,
+	},
+	findOneResult: {
+		dataValues: cartObject,
 	},
 	findAllResult: [],
 	findByPkResult: null,

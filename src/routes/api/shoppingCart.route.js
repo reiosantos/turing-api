@@ -6,8 +6,13 @@ import ShoppingCartMiddleware from '../../middlewares/shoppingCartMiddleware';
 
 const router = Router();
 router.get('/shoppingcart/generateUniqueId', ShoppingCartController.generateUniqueCart);
-router.post('/shoppingcart/add', ShoppingCartController.addItemToCart);
-router.get('/shoppingcart/:cart_id', ShoppingCartController.getCart);
+
+router.post('/shoppingcart/add', ShoppingCartMiddleware.validate('addItemToCart'),
+	Helpers.returnErrors, ShoppingCartController.addItemToCart);
+
+router.get('/shoppingcart/:cart_id', ShoppingCartMiddleware.validate('getCart'),
+	Helpers.returnErrors, ShoppingCartController.getCart);
+
 router.put('/shoppingcart/update/:item_id', ShoppingCartController.updateCartItem);
 router.delete('/shoppingcart/empty/:cart_id', ShoppingCartController.emptyCart);
 router.delete('/shoppingcart/removeProduct/:item_id', ShoppingCartController.removeItemFromCart);
