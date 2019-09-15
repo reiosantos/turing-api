@@ -1,6 +1,7 @@
 export const CUSTOMER_MODAL = 'customer';
 export const ORDER_MODAL = 'order';
 export const PRODUCT_MODAL = 'product';
+export const SHOPPING_CART_MODAL = 'shopping_cart';
 
 export const TTL = 60 * 60;
 
