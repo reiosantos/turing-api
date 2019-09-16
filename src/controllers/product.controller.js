@@ -18,7 +18,7 @@
  *  endpoints, request body/param, and response object for each of these method
  */
 import { CATEGORY_MODAL, errors, PRODUCT_CATEGORY_MODAL, PRODUCT_MODAL } from '../constants';
-import { Department, Sequelize, sequelize } from '../database/models';
+import { Department, Sequelize } from '../database/models';
 import Helpers from '../helpers';
 import DatabaseWrapper from '../models';
 import ModelFactory from '../models/models.factory';

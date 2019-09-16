@@ -1,0 +1,918 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"termsOfService": "http://swagger.io/terms/",
+		"description": "Turing Shop API",
+		"contact": {
+			"name": "API Support",
+			"url": "http://local.turing.com/support",
+			"email": "ronireiosantos@gmail.com"
+		},
+		"title": "Turing Shop API docs",
+		"version": "1.0"
+	},
+	"basePath": "/api",
+	"produces": [
+		"application/json"
+	],
+	"consumes": [
+		"application/json"
+	],
+	"schemes": [
+		"http",
+		"https"
+	],
+	"paths": {
+		"/customers": {
+			"post": {
+				"tags": [
+					"Customers"
+				],
+				"description": "Creates a new Customer account",
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "email",
+						"required": true,
+						"description": "Email of User",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "name",
+						"required": true,
+						"description": "Name of User",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "password",
+						"required": true,
+						"description": "Name of User",
+						"type": "string",
+						"format": "password"
+					}
+				],
+				"responses": {
+					"201": {
+						"description": "Return a Object of Customer with auth credencials",
+						"schema": {
+							"$ref": "#/definitions/CustomerRegistration"
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					},
+					"404": {
+						"description": "Resource not found",
+						"schema": {
+							"$ref": "#/definitions/NotFound"
+						}
+					}
+				}
+			}
+		},
+		"/customers/login": {
+			"post": {
+				"tags": [
+					"Customers"
+				],
+				"description": "Login to Customer account",
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "email",
+						"required": true,
+						"description": "Email of User",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "password",
+						"required": true,
+						"description": "Name of User",
+						"type": "string",
+						"format": "password"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Return a Object of Customer with auth credencials",
+						"schema": {
+							"$ref": "#/definitions/CustomerRegistration"
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/srtipe/charge": {
+			"post": {
+				"tags": [
+					"Stripe"
+				],
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"description": "This method receive a front-end payment and create a charge.",
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "stripeToken",
+						"required": true,
+						"description": "The API token, you can use this example to get it: https://stripe.com/docs/stripe-js/elements/quickstart",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "order_id",
+						"required": true,
+						"description": "The order ID recorded before (Check the Order Documentation)",
+						"type": "integer"
+					},
+					{
+						"in": "formData",
+						"name": "description",
+						"required": true,
+						"description": "Description to order",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "amount",
+						"required": true,
+						"description": "Only numbers like: 999",
+						"type": "integer"
+					},
+					{
+						"in": "formData",
+						"name": "currency",
+						"description": "Check here the options: https://stripe.com/docs/currencies, the default",
+						"default": "USD",
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Object from Stripe"
+					},
+					"400": {
+						"description": "",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					},
+					"401": {
+						"description": "unAuthorized",
+						"schema": {
+							"$ref": "#/definitions/Unauthorized"
+						}
+					}
+				}
+			}
+		},
+		"/products": {
+			"get": {
+				"tags": [
+					"Products"
+				],
+				"description": "Returns a list of products",
+				"parameters": [
+					{
+						"$ref": "#/parameters/page"
+					},
+					{
+						"$ref": "#/parameters/limit"
+					},
+					{
+						"$ref": "#/parameters/description_length"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Object of products",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"count": {
+									"type": "number",
+									"example": 1
+								},
+								"rows": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Product"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/products/{product_id}": {
+			"get": {
+				"tags": [
+					"Products"
+				],
+				"description": "Returns a single product",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "product_id",
+						"type": "number",
+						"description": "Product Id",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A single product",
+						"schema": {
+							"type": "object",
+							"$ref": "#/definitions/ProductDetail"
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/products/inCategory/{category_id}": {
+			"get": {
+				"tags": [
+					"Products"
+				],
+				"description": "Returns a list of products in a category",
+				"parameters": [
+					{
+						"in": "path",
+						"type": "number",
+						"name": "category_id",
+						"description": "Category Id",
+						"required": true
+					},
+					{
+						"$ref": "#/parameters/page"
+					},
+					{
+						"$ref": "#/parameters/limit"
+					},
+					{
+						"$ref": "#/parameters/description_length"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Object of products",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"count": {
+									"type": "number",
+									"example": 1
+								},
+								"rows": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Product"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/products/inDepartment/{department_id}": {
+			"get": {
+				"tags": [
+					"Products"
+				],
+				"description": "Returns a list of products in a department",
+				"parameters": [
+					{
+						"in": "path",
+						"type": "number",
+						"name": "department_id",
+						"description": "Department Id",
+						"required": true
+					},
+					{
+						"$ref": "#/parameters/page"
+					},
+					{
+						"$ref": "#/parameters/limit"
+					},
+					{
+						"$ref": "#/parameters/description_length"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Object of products",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"count": {
+									"type": "number",
+									"example": 1
+								},
+								"rows": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Product"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/products/search/": {
+			"get": {
+				"tags": [
+					"Products"
+				],
+				"description": "Returns a list of products based on search term",
+				"parameters": [
+					{
+						"in": "query",
+						"type": "string",
+						"name": "query_string",
+						"description": "Query to search",
+						"required": true
+					},
+					{
+						"in": "query",
+						"type": "string",
+						"name": "all_words",
+						"description": "All words or no",
+						"default": "on"
+					},
+					{
+						"$ref": "#/parameters/page"
+					},
+					{
+						"$ref": "#/parameters/limit"
+					},
+					{
+						"$ref": "#/parameters/description_length"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Object of products",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"count": {
+									"type": "number",
+									"example": 1
+								},
+								"rows": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Product"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/shoppingcart/generateUniqueId": {
+			"get": {
+				"tags": [
+					"ShoppingCart"
+				],
+				"description": "Generate Unique Cart ID",
+				"responses": {
+					"200": {
+						"description": "Json Object with unique Cart ID",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"cart_id": {
+									"type": "string",
+									"example": "234563679876"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/shoppingcart/add": {
+			"post": {
+				"tags": [
+					"ShoppingCart"
+				],
+				"description": "Add Items ot ShoppingCart",
+				"parameters": [
+					{
+						"in": "formData",
+						"name": "cart_id",
+						"required": true,
+						"description": "Cart ID",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "product_id",
+						"required": true,
+						"description": "Product ID",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "attributes",
+						"required": true,
+						"description": "Attributes of Product.",
+						"type": "string"
+					},
+					{
+						"in": "formData",
+						"name": "quantity",
+						"required": true,
+						"description": "Number of Products",
+						"type": "number"
+					}
+				],
+				"responses": {
+					"201": {
+						"description": "Return a array of products in the cart",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/CartProduct"
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		},
+		"/shoppingcart/{cart_id}": {
+			"post": {
+				"tags": [
+					"ShoppingCart"
+				],
+				"description": "Get List of Products in Shopping Cart",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "cart_id",
+						"required": true,
+						"description": "Cart ID",
+						"type": "string"
+					}
+				],
+				"responses": {
+					"201": {
+						"description": "Return a array of products in the cart",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/CartProduct"
+							}
+						}
+					},
+					"400": {
+						"description": "Return a error object",
+						"schema": {
+							"$ref": "#/definitions/Error"
+						}
+					}
+				}
+			}
+		}
+	},
+	"tags": [
+		{
+			"name": "Customers",
+			"description": "Everything About customers"
+		},
+		{
+			"name": "Products",
+			"description": "Everything About Products"
+		},
+		{
+			"name": "ShoppingCart",
+			"description": "Everything About Shopping cart"
+		},
+		{
+			"name": "Stripe",
+			"description": "Everything About Stripe Integration"
+		}
+	],
+	"parameters": {
+		"page": {
+			"in": "query",
+			"name": "page",
+			"type": "integer",
+			"description": "Inform the page. Starting with 1",
+			"default": 1
+		},
+		"limit": {
+			"in": "query",
+			"name": "limit",
+			"type": "integer",
+			"description": "Limit per page",
+			"default": 20
+		},
+		"description_length": {
+			"in": "query",
+			"name": "description_length",
+			"type": "integer",
+			"description": "Limit of the description",
+			"default": 200
+		}
+	},
+	"definitions": {
+		"Customer": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"customer_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"name": {
+					"type": "string",
+					"example": "Kidepo"
+				},
+				"email": {
+					"type": "string",
+					"example": "some@email.com"
+				},
+				"address_1": {
+					"type": "string",
+					"example": ""
+				},
+				"address_2": {
+					"type": "string",
+					"example": ""
+				},
+				"city": {
+					"type": "string",
+					"example": ""
+				},
+				"region": {
+					"type": "string",
+					"example": ""
+				},
+				"postal_code": {
+					"type": "string",
+					"example": ""
+				},
+				"country": {
+					"type": "string",
+					"example": ""
+				},
+				"shipping_region_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"day_phone": {
+					"type": "string",
+					"example": "+351323213511235"
+				},
+				"eve_phone": {
+					"type": "string",
+					"example": "+351323213511235"
+				},
+				"mob_phone": {
+					"type": "string",
+					"example": "+351323213511235"
+				},
+				"credit_card": {
+					"type": "string",
+					"example": "xxxxxxxxxxxxx5100"
+				}
+			}
+		},
+		"CustomerRegistration": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"customer": {
+					"$ref": "#/definitions/Customer"
+				},
+				"access_token": {
+					"type": "string",
+					"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE1NTA0MjQ0OTgsImV4cCI6MTU1MDUxMDg5OH0.aEFrNUPRWuRWx0IOEL-_A4J4Ti39iXEHAScm6GI61RR"
+				},
+				"expires_in": {
+					"type": "string",
+					"example": "48h"
+				}
+			}
+		},
+		"CartProduct": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"item_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"cart_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"product_id": {
+					"type": "number",
+					"example": 23
+				},
+				"attributes": {
+					"type": "string",
+					"example": "LG, Red"
+				},
+				"quantity": {
+					"type": "integer",
+					"example": 2
+				},
+				"buy_now": {
+					"type": "boolean",
+					"example": true
+				},
+				"added_on": {
+					"type": "string",
+					"example": "2019-09-15T13:23:10.000Z"
+				},
+				"Product": {
+					"$ref": "#/definitions/Product"
+				}
+			}
+		},
+		"Attribute": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"attribute_value_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"attribute_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"value": {
+					"type": "string",
+					"example": "S"
+				},
+				"ProductAttribute": {
+					"$ref": "#/definitions/ProductAttribute"
+				}
+			}
+		},
+		"ProductAttribute": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"product_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"attribute_value_id": {
+					"type": "integer",
+					"example": 1
+				}
+			}
+		},
+		"Category":{
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"category_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"name": {
+					"type": "string",
+					"example": "French"
+				},
+				"description": {
+					"type": "string",
+					"example": "The French have always had an eye for beauty. One look at the T-shirts below and you'll see that same appreciation has been applied abundantly to their postage stamps. Below are some of our most beautiful and colorful T-shirts, so browse away! And don't forget to go all the way to the bottom - you don't want to miss any of them!"
+				},
+				"department_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"ProductCategory": {
+					"$ref": "#/definitions/ProductCategory"
+				}
+			}
+		},
+		"ProductCategory": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"product_id": {
+					"type": "integer",
+					"example": 1
+				},
+				"category_id": {
+					"type": "integer",
+					"example": 2
+				}
+			}
+		},
+		"Product": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"product_id": {
+					"type": "number",
+					"example": 1
+				},
+				"name": {
+					"type": "string",
+					"example": "Chartres Cathedral"
+				},
+				"description": {
+					"type": "string",
+					"example": "The Fur Merchants\". Not all the beautiful stained glass in the great cathedrals depicts saints and angels! Lay aside your furs for the summer and wear this beautiful T-shirt!"
+				},
+				"price": {
+					"type": "string",
+					"example": "22.99"
+				},
+				"discounted_price": {
+					"type": "string",
+					"example": "34.78"
+				},
+				"thumbnail": {
+					"type": "string",
+					"example": "chartres-cathedral-thumbnail.gif"
+				}
+			}
+		},
+		"ProductDetail": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"product_id": {
+					"type": "number",
+					"example": 1
+				},
+				"name": {
+					"type": "string",
+					"example": "Chartres Cathedral"
+				},
+				"description": {
+					"type": "string",
+					"example": "The Fur Merchants\". Not all the beautiful stained glass in the great cathedrals depicts saints and angels! Lay aside your furs for the summer and wear this beautiful T-shirt!"
+				},
+				"price": {
+					"type": "string",
+					"example": "22.99"
+				},
+				"discounted_price": {
+					"type": "string",
+					"example": "34.78"
+				},
+				"thumbnail": {
+					"type": "string",
+					"example": "chartres-cathedral-thumbnail.gif"
+				},
+				"Categories": {
+					"type": "array",
+					"items": [
+						{
+							"$ref": "#/definitions/Category",
+							"example": {}
+						}
+					]
+				},
+				"attributes": {
+					"type": "array",
+					"items": [
+						{
+							"$ref": "#/definitions/Attribute",
+							"example": {}
+						}
+					]
+				}
+			}
+		},
+		"Error": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"code": {
+					"type": "string",
+					"example": "USR_02"
+				},
+				"message": {
+					"type": "string",
+					"example": "The field example is empty."
+				},
+				"field": {
+					"type": "string",
+					"example": "example"
+				},
+				"status": {
+					"type": "string",
+					"example": "500"
+				}
+			}
+		},
+		"Unauthorized": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"code": {
+					"type": "string",
+					"example": "AUT_02"
+				},
+				"message": {
+					"type": "string",
+					"example": "The apikey is invalid"
+				},
+				"field": {
+					"type": "string",
+					"example": "API-KEY"
+				}
+			}
+		},
+		"NotFound": {
+			"readOnly": true,
+			"type": "object",
+			"properties": {
+				"code": {
+					"type": "string",
+					"example": "USR_02"
+				},
+				"message": {
+					"type": "string",
+					"example": "Resource does not exist"
+				},
+				"field": {
+					"type": "string",
+					"example": "example"
+				}
+			}
+		}
+	},
+	"securityDefinitions": {
+		"JWT": {
+			"type": "apiKey",
+			"in": "header",
+			"name": "USER-KEY"
+		}
+	}
+}

@@ -1,6 +1,7 @@
 import '@babel/polyfill';
 import express from 'express';
 import expressWinston from 'express-winston';
+import swagger from 'swagger-ui-express';
 import winston from 'winston';
 import morgan from 'morgan';
 import log from 'fancy-log';
@@ -11,6 +12,11 @@ import helmet from 'helmet';
 import cors from 'cors';
 import router from './routes';
 import env from '../config/environment';
+
+let swaggerDocument = {};
+try {
+	swaggerDocument = require('../swagger');
+} catch (e) {}
 
 const isProduction = env.NODE_ENV === 'production';
 
@@ -35,6 +41,9 @@ app.use(
 	})
 );
 app.use(bodyParser.json());
+
+app.use('/api/docs', swagger.serve, swagger.setup(swaggerDocument, { explorer: false }));
+
 app.use(expressValidator());
 
 app.use(
