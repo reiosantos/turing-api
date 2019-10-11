@@ -17,7 +17,13 @@
  *  NB: Check the BACKEND CHALLENGE TEMPLATE DOCUMENTATION in the readme of this repository to see our recommended
  *  endpoints, request body/param, and response object for each of these method
  */
-import { CATEGORY_MODAL, errors, PRODUCT_CATEGORY_MODAL, PRODUCT_MODAL } from '../constants';
+import {
+	CATEGORY_MODAL,
+	DEPARTMENT_MODAL,
+	errors,
+	PRODUCT_CATEGORY_MODAL,
+	PRODUCT_MODAL
+} from '../constants';
 import { Department, Sequelize } from '../database/models';
 import Helpers from '../helpers';
 import DatabaseWrapper from '../models';
@@ -182,11 +188,11 @@ class ProductController {
 	 */
 	static async getAllDepartments(req, res, next) {
 		try {
-			const departments = await Department.findAll();
-			return res.status(200)
-				.json(departments);
+			const departments = await DatabaseWrapper.findAll(
+				DEPARTMENT_MODAL, {}, undefined, []);
+			return res.status(200).json(departments);
 		} catch (error) {
-			return next(error);
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
 		}
 	}
 	
@@ -223,9 +229,20 @@ class ProductController {
 	 * @param {*} next
 	 */
 	static async getAllCategories(req, res, next) {
-		// Implement code to get all categories here
-		return res.status(200)
-			.json({ message: 'this works' });
+		let { description_length, offset, limit } = Helpers.paginate(req);
+		try {
+			const where = Sequelize.where(
+				Sequelize.fn('CHAR_LENGTH', Sequelize.col('Category.description')),
+				{ [Op.lte]: description_length });
+			
+			const category = await DatabaseWrapper.findAndCountAll(
+				CATEGORY_MODAL, where, undefined, [], undefined,
+				undefined, limit, offset);
+			
+			return res.status(200).json(category);
+		} catch (error) {
+			return res.status(400).json(errors.getError('PAY_03', '', 400, error.message));
+		}
 	}
 	
 	/**
